@@ -1,117 +1,134 @@
-# ExampleClient
+# ExampleMod
 
-ExampleClient is a Minecraft-style client modification framework for BGFX.
-
-It provides a ClickGUI system, module management, categories, settings, and custom modules.
+ExampleMod is a BGFX native mod template using Java, JNI and C++.
 
 ## Features
 
-- ClickGUI interface
-- Module system
-- Module categories
-- Boolean settings
-- Slider settings
-- Custom modules
-- BGFX script integration
+- Java plugin integration
+- Native `.so` loading
+- JNI bridge
+- ARM64 native code
+- Hooking utilities
+- Memory utilities
+- Signature support
 
 ## Structure
 
 ```
-ExampleClient/
-├── ExampleClient.java
-├── ClickGUI.java
-├── Module.java
-├── ModuleManager.java
-├── ModuleCategory.java
-├── Setting.java
-└── impl/
+ExampleMod/
+
+app/src/main/java/
+└── com/example/bgfx/mod/
+    ├── ExampleMod.java
+    ├── NativeClient.java
+    └── LibraryLoader.java
+
+app/src/main/jni/
+├── Main.cpp
+├── Utils.h
+├── Sigs.h
+└── obfuscate.h
+
+app/src/main/jniLibs/
+└── arm64-v8a/
+    └── libMyMod.so
+
+plugins/
+├── ExampleMod.dex
+└── ExampleMod.json
 ```
 
-## Module System
+## Java Side
 
-Modules are created by extending:
+`ExampleMod.java` is the plugin entry point.
+
+It loads the native library:
 
 ```java
-Module
+LibraryLoader.load(context, "libMyMod.so");
 ```
 
-Example:
+## Native Side
+
+Native code is located in:
+
+```
+jni/Main.cpp
+```
+
+The output library:
+
+```
+libMyMod.so
+```
+
+contains native mod code.
+
+## JNI
+
+Java communicates with C++ using:
 
 ```java
-public class Fly extends Module {
-
-    public Fly(){
-        super("Fly", ModuleCategory.MOVEMENT);
-    }
-
-}
+NativeClient.java
 ```
 
-## Categories
+## Dependencies
 
-```
-COMBAT
-MOVEMENT
-WORLD
-VISUAL
-MISC
-```
+Included libraries:
 
-## Settings
-
-Supported:
-
-- Boolean settings
-- Slider settings
-
-## ClickGUI
-
-Features:
-
-- Category panels
-- Module list
-- Toggle modules
-- Settings controls
+- Dobby
+- And64InlineHook
+- KittyMemory
+- Logger
 
 ## Building
+
+Build:
 
 ```bash
 ./gradlew assembleRelease
 ```
 
-## BGFX Integration
-
-Uses:
+Native output:
 
 ```
-bgfxwrapper.jar
+libMyMod.so
 ```
 
-Provides:
+## Plugin Support
 
-```java
-com.executor.bgfxui.ScriptManager
+Example plugin folder:
+
+```
+plugins/
+
+├── ExampleMod.dex
+└── ExampleMod.json
 ```
 
-## Example Modules
+JSON:
 
-Combat:
-- KillAura
-- Aimbot
-- AutoClicker
+```json
+{
+    "name": "ExampleMod",
+    "main": "com.example.bgfx.client.ExampleClient"
+}
+```
 
-Movement:
-- Fly
-- Speed
-- HighJump
+## Architecture
 
-World:
-- Nuker
-- FastBreak
+Target:
 
-Visual:
-- Fullbright
+```
+arm64-v8a
+```
+
+## Notes
+
+- Native library must match device architecture.
+- JNI names must match between Java and C++.
+- Rebuild after changing native code.
 
 ## License
 
-Free to modify and create your own BGFX clients.
+Free to modify and create your own BGFX mods.
